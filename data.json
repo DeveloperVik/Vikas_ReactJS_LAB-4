@@ -1,0 +1,23 @@
+[
+    {
+        "date": "07/04/2022",
+        "product": "Bike Repair",
+        "price": "1000",
+        "payee": "Rahul"
+    },
+
+    {
+        "date": "05/04/2022",
+        "product": "Movie",
+        "price": "1044",
+        "payee": "Rahul"
+    },
+
+    {
+        "date": "01/04/2022",
+        "product": "Vegetables",
+        "price": "366",
+        "payee": "Ramesh"
+    }
+
+]

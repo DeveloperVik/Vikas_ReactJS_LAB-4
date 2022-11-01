@@ -1,0 +1,462 @@
+<!DOCTYPE html> 
+<html>
+<head>
+    <title>Flatmate Expense Tracker</title>
+    <!-- ## jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- ## bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- ## custom css -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<style>
+    .banner {
+        background-color: #000000;
+        color: #51c779;
+        text-align: center;
+        padding: 5px;
+    }
+    .content {
+        background-color: #ffffff;
+        color: #000000;
+        text-align: center;
+        padding: 5px;
+        width: 100%;
+    }
+    .footer {
+        background-color: #000000;
+        color: #ffffff;
+        text-align: center;
+        padding: 5px;
+    }
+    .left {
+        float: left;
+        width: 80%;
+        border: #000000;
+        border-style: double;
+    }   
+    .right {
+        float: right;
+        width: 15%;
+
+    }
+    .clear {
+        clear: both;
+    }
+    .th {
+        background-color: #51c779;
+        color: #000000;
+        text-align: center;
+        padding: 5px;
+    }
+    .td {
+        background-color: #ffffff;
+        color: #000000;
+        text-align: center;
+        padding: 5px;
+    }
+    .table {
+        border: #000000;
+        border-style: double;
+        width: 100%;
+    }
+
+</style>
+<body onload="load_data()">
+    <!-- ## top banner in light gray with olive text aligned at center -->
+    <div class="banner">
+        <h1 style="font-size: 52px;">Expense Tracker</h1>
+
+    </div>
+
+    <!-- ## two coloumn div -->
+    <div class="content">
+        <div class="left">
+            <!-- ## 4 coloumn table : Date,Product Purchased,Price,Payee -->
+            <!-- ## header with black background and white text
+            ## Date coloumn with light brown background and black text
+            ## Product Purchased coloumn with light blue background and black text
+            ## Price coloumn with puurple background and black text
+            ## Payee coloumn with cyan background and black text
+            ## all coloumns have names for javascript to access
+            ## Date coloumn has a text aligned at center
+            ## border margin of every cell is 5px -->
+
+            <table style="width: 100%;" class="table" name="table" id="table">
+                <tr style="background-color: #000000; color: #ffffff; text-align: center; padding: 5px;font-size: xx-large;">
+                    <th>Date</th>
+                    <th>Product Purchased</th>
+                    <th>Price</th>
+                    <th>Payee</th>
+                </tr>
+
+                <tr>
+                    <td style = "background-color: #ccb73fbd; color: #000000; text-align: center; padding: 5px;font-size: xx-large;" id="date" name="date">1/1/2019</td>
+                    <td style = "background-color: #7497d8; color: #000000; text-align: center; padding: 5px;font-size: xx-large;" id="product" name="product">Product</td>
+                    <td style = "background-color: purple; color: #ffffff; text-align: center; padding: 5px;font-size: xx-large;" id="price" name="price">Price</td>
+                    <td style = "background-color: cyan; color: #000000; text-align: center; padding: 5px;font-size: xx-large;" id="payee" name="payee">Payee</td>
+                </tr>
+
+            </table>
+
+        </div>
+        <div class="right">
+            <!-- ## Add button in Green with black text
+            ## Add button has a function to add a new row to the table, call add_payee() function -->
+            <button style="background-color: #51c779; color: #000000; text-align: center; padding: 5px;font-size: xx-large;width: 80%" onclick="add_payee()">Add</button>
+            
+        </div>
+    </div>
+
+    <!-- ## a line divider -->
+    <hr>
+    <!-- ### table with two coloumns
+    ### Rows : Total:, Payee 1 paid:, Payee 2 paid, Pay Payee 1
+    ### Total: coloumn with cyan background and black text
+    ### Payee 1 paid: coloumn with light blue background and black text
+    ### Payee 2 paid: coloumn with light brown background and black text
+    ### Pay Payee 1 button with green background and black text
+    ### Pay Payee 1 button has a function to calculate the amount to be paid by Payee 1, call pay_payee1() function -->
+    <div class="content" style="width: 40%;">
+        <table style="width: 100%;" class="table" name="table" id="table">
+            <tr style="background-color: #000000; color: #ffffff; text-align: center; padding: 5px;font-size: xx-large;">
+                <th>Total:</th>
+                <th>Payee 1 paid:</th>
+                <th>Payee 2 paid:</th>
+                <th>Pay Payee 1</th>
+            </tr>
+
+            <tr>
+                <td style = "background-color: cyan; color: #000000; text-align: center; padding: 5px;font-size: xx-large;" id="total" name="total">Total</td>
+                <td style = "background-color: #7497d8; color: #000000; text-align: center; padding: 5px;font-size: xx-large;" id="payee1" name="payee1">Payee 1</td>
+                <td style = "background-color: #ccb73fbd; color: #000000; text-align: center; padding: 5px;font-size: xx-large;" id="payee2" name="payee2">Payee 2</td>
+                <td style = "background-color: #51c779; color: #000000; text-align: center; padding: 5px;font-size: xx-large;" id="pay" name="pay"><button onclick="pay_payee1()">Pay</button></td>
+            </tr>
+
+        </table>
+    </div>
+
+
+    <!-- ## load_data function to load data.json file -->
+<script>
+    function load_data() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var data = JSON.parse(this.responseText);
+                var table = document.getElementById("table");
+
+                // remove any rows from the table
+                var rowCount = table.rows.length;
+                for (var x = rowCount - 1; x > 0; x--) {
+                    table.deleteRow(x);
+                }
+
+                var total = 0;
+                var payee1 = 0;
+                var payee2 = 0;
+                for (var i = 0; i < data.length; i++) {
+                    var row = table.insertRow(i + 1);
+                    var date = row.insertCell(0);
+                    //set cell style 
+                    date.style.backgroundColor = "#ccb73fbd";
+                    date.style.color = "#000000";
+                    date.style.textAlign = "center";
+                    date.style.padding = "5px";
+                    date.style.fontSize = "xx-large";
+            
+                    var product = row.insertCell(1);
+                    //set cell style
+                    product.style.backgroundColor = "#7497d8";
+                    product.style.color = "#000000";
+                    product.style.textAlign = "center";
+                    product.style.padding = "5px";
+                    product.style.fontSize = "xx-large";
+
+                    var price = row.insertCell(2);
+                    //set cell style
+                    price.style.backgroundColor = "purple";
+                    price.style.color = "#ffffff";
+                    price.style.textAlign = "center";
+                    price.style.padding = "5px";
+                    price.style.fontSize = "xx-large";
+
+                    var payee = row.insertCell(3);
+                    //set cell style
+                    payee.style.backgroundColor = "cyan";
+                    payee.style.color = "#000000";
+                    payee.style.textAlign = "center";
+                    payee.style.padding = "5px";
+                    payee.style.fontSize = "xx-large";
+
+                    date.innerHTML = data[i].date;
+                    product.innerHTML = data[i].product;
+                    price.innerHTML = data[i].price;
+                    payee.innerHTML = data[i].payee;
+                    total += data[i].price;
+                    if (data[i].payee == "Payee 1") {
+                        payee1 += data[i].price;
+                    }
+                    else {
+                        payee2 += data[i].price;
+                    }
+                }
+                document.getElementById("total").innerHTML = total;
+                document.getElementById("payee1").innerHTML = payee1;
+                document.getElementById("payee2").innerHTML = payee2;
+            }
+        };
+        xhttp.open("GET", "data.json", true);
+        xhttp.send();
+    }
+</script>
+
+<!-- ## add_payee function to add a new row to the table using a modal -->
+<script>
+    function add_payee() {
+        // create a modal in the center of the screen
+        // size is 50% of the screen on both width and height
+        // header of 20% of modal height with light yellow background and black text saying "Add New Item"
+        // followed by a form with 4 input fields : Name <dropdown: Rahul,Ramesh>, Date <input type="date">, Product <input type="text">, Price <input type="number">
+        // followed by 2 buttons : Add <green background and black text> and Cancel <red background and black text>
+        
+        // create a modal
+        var modal = document.createElement("div");
+        modal.style.position = "fixed";
+        modal.style.top = "0";
+        modal.style.left = "0";
+        modal.style.width = "100%";
+        modal.style.height = "100%";
+        modal.style.backgroundColor = "rgba(0,0,0,0.4)";
+        modal.style.zIndex = "1000";
+        modal.style.display = "flex";
+        modal.style.justifyContent = "center";
+        modal.style.alignItems = "center";
+        document.body.appendChild(modal);
+
+        // create a modal content
+        var modal_content = document.createElement("div");
+        modal_content.style.width = "60%";
+        modal_content.style.height = "60%";
+        modal_content.style.backgroundColor = "#ffffff";
+        modal_content.style.borderRadius = "10px";
+        modal_content.style.padding = "10px";
+        modal.appendChild(modal_content);
+
+        // create a modal header
+        var modal_header = document.createElement("div");
+        modal_header.style.width = "100%";
+        modal_header.style.height = "20%";
+        modal_header.style.backgroundColor = "#ffff00"; 
+        modal_header.style.borderRadius = "10px 10px 0px 0px";
+        modal_header.style.padding = "0px";
+        modal_header.style.fontSize = "xx-large";
+        modal_header.style.textAlign = "center";
+        modal_header.style.color = "#000000";
+        modal_header.innerHTML = "Add New Item";
+        modal_content.appendChild(modal_header);
+
+        // create a modal form with the 4 input fields
+        var modal_form = document.createElement("form");
+        modal_form.style.width = "80%";
+        modal_form.style.height = "60%";
+        modal_form.style.backgroundColor = "#ffffff";
+        modal_form.style.borderRadius = "0px 0px 10px 10px";
+        modal_form.style.padding = "10px";
+        modal_form.style.fontSize = "large";
+        modal_form.style.textAlign = "center";
+        // content align to center
+        modal_form.style.display = "flex";
+        modal_form.style.flexDirection = "column";
+        modal_form.style.justifyContent = "center";
+        modal_form.style.color = "#000000";
+        modal_content.appendChild(modal_form);
+
+
+        // name dropdown
+        // labe for name
+        var name_label = document.createElement("label");
+        name_label.innerHTML = "Name";
+        name_label.style.textAlign = "left";
+        name_label.style.width = "100%";
+        modal_form.appendChild(name_label);
+        var name = document.createElement("select");
+        name.style.width = "100%";
+        name.style.height = "15%";
+        name.style.backgroundColor = "#ffffff";
+        name.style.borderRadius = "10px";
+        name.style.padding = "10px";
+        name.style.fontSize = "large";
+        name.style.textAlign = "center";
+        name.style.color = "#000000";
+        name.style.marginBottom = "10px";
+        var option1 = document.createElement("option"); 
+        var names = ["Rahul", "Ramesh"];
+        option1.text = names[0];
+        option1.value = names[0];
+        name.add(option1);
+        var option2 = document.createElement("option");
+        option2.text = names[1];
+        option2.value = names[1];
+        name.add(option2);
+        modal_form.appendChild(name);
+
+        // product input field <text>
+        // label for product
+        var product_label = document.createElement("label");
+        product_label.innerHTML = "Product";
+        product_label.style.textAlign = "left";
+        product_label.style.width = "100%";
+        modal_form.appendChild(product_label);
+        var product = document.createElement("input");
+        product.type = "text";
+        product.style.width = "96%";
+        product.style.height = "10%";
+        product.style.backgroundColor = "#ffffff";
+        product.style.borderRadius = "10px";
+        product.style.padding = "10px";
+        product.style.fontSize = "large";
+        product.style.textAlign = "center";
+        product.style.color = "#000000";
+        product.style.marginBottom = "10px";
+        modal_form.appendChild(product);
+
+        // price input field <number>
+        // label for price
+        var price_label = document.createElement("label");
+        price_label.innerHTML = "Price";
+        price_label.style.textAlign = "left";
+        price_label.style.width = "100%";
+        modal_form.appendChild(price_label);
+        var price = document.createElement("input");
+        price.type = "number";
+        price.style.width = "96%";
+        price.style.height = "10%";
+        price.style.backgroundColor = "#ffffff";
+        price.style.borderRadius = "10px";
+        price.style.padding = "10px";
+        price.style.fontSize = "large";
+        price.style.textAlign = "center";
+        price.style.color = "#000000";
+        price.style.marginBottom = "10px";
+        modal_form.appendChild(price);
+
+        // date input field <date>
+        // label for date
+        var date_label = document.createElement("label");
+        date_label.innerHTML = "Date";
+        date_label.style.textAlign = "left";
+        date_label.style.width = "100%";
+        modal_form.appendChild(date_label);
+        var date = document.createElement("input");
+        date.type = "date";
+        date.style.width = "96%";
+        date.style.height = "10%";
+        date.style.backgroundColor = "#ffffff";
+        date.style.borderRadius = "10px";
+        date.style.padding = "10px";
+        date.style.fontSize = "large";
+        date.style.textAlign = "center";
+        date.style.color = "#000000";
+        date.style.marginBottom = "10px";
+        modal_form.appendChild(date);
+
+        // close button
+        var close = document.createElement("button");
+        close.innerHTML = "Close";
+        close.style.width = "30%";
+        close.style.height = "10%";
+        close.style.backgroundColor = "#ffffff";
+        close.style.borderRadius = "10px";
+        close.style.padding = "10px";
+        close.style.fontSize = "large";
+        close.style.textAlign = "center";
+        close.style.color = "#000000";
+        close.style.marginBottom = "10px";
+        close.style.marginRight = "10px";
+        close.style.float = "right";
+        close.style.border = "1px solid #000000";
+        close.onclick = function() {
+            modal.style.display = "none";
+        }
+        modal_form.appendChild(close);
+
+        // submit button
+        var submit = document.createElement("button");
+        submit.innerHTML = "Submit";
+        submit.style.width = "30%";
+        submit.style.height = "10%";
+        submit.style.backgroundColor = "#ffffff";
+        submit.style.borderRadius = "10px";
+        submit.style.padding = "10px";
+        submit.style.fontSize = "large";
+        submit.style.textAlign = "center";
+        submit.style.color = "#000000";
+        submit.style.marginBottom = "10px";
+        submit.style.marginRight = "10px";
+        submit.style.float = "right";
+        submit.style.border = "1px solid #000000";
+        // onclick call function to add data to table
+        submit.onclick = function() {
+            // alert ("Name: " + name.value + " Product: " + product.value + " Price: " + price.value + " Date: " + date.value);
+            // add data to table
+            addData(name.value, product.value, price.value, date.value);
+            modal.style.display = "none";
+        }
+        modal_form.appendChild(submit);
+
+    }
+    
+</script>
+
+<!-- ## addData  -->
+<script>
+    function addData(name, product, price, date) {
+        filename = "data.json";
+        // the file is a array of objects
+        // append the new data to the array
+        // write the array to the file
+        var data = {
+            "date": date,
+            "product": product,
+            "price": price,
+            "payee": name
+        };
+        var xhttp = new XMLHttpRequest();
+
+        // first load the data from the file into json array
+        var json = [];
+        // get data from file
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                json = JSON.parse(this.responseText);
+    
+                // write json array to file with new data data.json
+                json.push(data);
+
+                // use blob to write to file
+                var blob = new Blob([JSON.stringify(json)], {type: "application/json"});
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                // download to current directory
+                a.download = filename;
+                a.href = url;
+                a.click();
+                window.URL.revokeObjectURL(url);
+                
+            }
+        };
+        xhttp.open("GET", filename, true);
+        xhttp.send();
+    }
+</script>
+
+</body>
+
+
+
+
+
+    
+</html>
